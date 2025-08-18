@@ -1,3 +1,13 @@
+
+# Ignorar dependencias y archivos grandes
+/vendor/
+/node_modules/
+/storage/
+/public/css/
+/public/js/
+/public/product_pictures/
+/firestore-export/backup/
+/firestore-export/backup.zip
 *.log
 .DS_Store
 .env
@@ -21,4 +31,8 @@
 /vendor
 Homestead.json
 Homestead.yaml
+npm-debug.log
 Thumbs.db
+yarn-error.log
+storage/logs/
+bootstrap/cache/

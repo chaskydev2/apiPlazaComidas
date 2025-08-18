@@ -2,47 +2,54 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens; 
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable,HasApiTokens;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // Definir clave primaria personalizada
+    protected $primaryKey = 'idusuario';
+
+    // Laravel asumirá que la clave primaria no se autoincrementa si no es "id"
+    public $incrementing = true;
+
+    // Si tu clave no es un entero, deberías definir el tipo (en este caso no es necesario porque es BIGINT por default)
+    protected $keyType = 'int';
+
+    // Campos asignables en masa
     protected $fillable = [
-        'name',
+        'usuario',         // tu campo personalizado (en vez de 'name')
         'email',
         'password',
+        'idempresa'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    // Campos ocultos en serializaciones (JSON, API, etc.)
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    // Cast automático de campos
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // 🔒 Si usas hashing automático en Laravel 10+ para `password`:
+    protected function password(): Attribute
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return Attribute::make(
+            set: fn ($value) => bcrypt($value),
+        );
+    }
+
+    // Relación con Empresa
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class, 'idempresa');
     }
 }
