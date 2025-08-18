@@ -32,7 +32,7 @@ class UserController extends Controller
             'usuario' => 'required|string|max:255|unique:users,usuario', // 'usuario' en lugar de 'name'
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8', // Las contraseñas deben ser de al menos 8 caracteres
-            'idempresa' => 'nullable|integer|exists:empresas,idempresa', // Asumiendo que 'empresas' es el nombre de la tabla
+            'idempresa' => 'nullable', // Asumiendo que 'empresas' es el nombre de la tabla
         ]);
 
         // Hashea la contraseña antes de guardar si no usas el mutador en el modelo para el 'set'
@@ -40,8 +40,13 @@ class UserController extends Controller
         // Laravel 10+ con el mutador maneja el hashing automáticamente al asignar la 'password'.
         $data['password'] = Hash::make($request->password);
 
-        $user = User::create($data);
-
+        //$user = User::create($data);
+        $user = new User();
+        $user->usuario = $data['usuario']; // Asigna 'usuario' en lugar de 'name'
+        $user->email = $data['email'];
+        $user->password = $data['password'];
+        $user->idempresa = $data['idempresa'] ?? null; // Asigna 'idempresa' si está presente
+        $user->save(); 
         // Opcional: Cargar la relación 'empresa' si es relevante para la respuesta
         // $user->load('empresa');
 

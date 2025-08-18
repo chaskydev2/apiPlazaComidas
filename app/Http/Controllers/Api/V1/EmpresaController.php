@@ -15,6 +15,8 @@ class EmpresaController extends Controller
 
     public function store(Request $request)
     {
+
+        dd($request->all());
         $data = $request->validate([
             'nombre'     => 'required|string',
             'ubicacion'  => 'required|string',

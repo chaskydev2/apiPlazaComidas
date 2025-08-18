@@ -14,8 +14,8 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        
-
+       
+    
         $credentials = $request->validate([
             'usuario' => 'required|string',
             'password' => 'required|string',
@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         // Buscar por email o por nombre de usuario
         $user = User::where('email', $credentials['usuario'])
-            ->orWhere('name', $credentials['usuario'])
+            ->orWhere('usuario', $credentials['usuario'])
             ->first();
 
         if (!$user) {

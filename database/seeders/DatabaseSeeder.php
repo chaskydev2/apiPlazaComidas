@@ -23,12 +23,12 @@ class DatabaseSeeder extends Seeder
         // Crear usuarios
         $users = [
             [
-                'name' => 'Test User',
+                'usuario' => 'Test User',
                 'email' => 'admin@koquito.com',
                 'password' => bcrypt('password123'),
             ],
             [
-                'name' => 'Chatbot',
+                'usuario' => 'Chatbot',
                 'email' => 'chatbot@koquito.ai',
             ]
         ];
