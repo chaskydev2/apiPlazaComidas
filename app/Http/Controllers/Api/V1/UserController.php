@@ -52,7 +52,6 @@ class UserController extends Controller
         }
 
         $data = $validator->validated();
-        $data['password'] = Hash::make($data['password']); // encriptamos la contraseña
 
         $user = new User();
         $user->usuario   = $data['usuario'];
