@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\MesaController;
 use App\Http\Controllers\Api\V1\ClienteController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CategoryController;
 
 // Agrupar todas las rutas bajo el prefijo 'v1' y proteger con auth:sanctum
 // Ruta pública para login
@@ -85,5 +86,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [ClienteController::class, 'show']);
         Route::put('update/{id}', [ClienteController::class, 'update']);
         Route::delete('delete/{id}', [ClienteController::class, 'destroy']);
+    });
+    Route::prefix('categorias')->group(function () {
+        Route::get('select', [\App\Http\Controllers\Api\V1\CategoryController::class, 'index']);
+        Route::post('create', [\App\Http\Controllers\Api\V1\CategoryController::class, 'store']);
+        Route::get('show/{id}', [\App\Http\Controllers\Api\V1\CategoryController::class, 'show']);
+        Route::put('update/{id}', [\App\Http\Controllers\Api\V1\CategoryController::class, 'update']);
+        Route::delete('delete/{id}', [\App\Http\Controllers\Api\V1\CategoryController::class, 'destroy']);
     });
 });
