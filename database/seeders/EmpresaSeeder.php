@@ -9,31 +9,38 @@ class EmpresaSeeder extends Seeder
 {
     public function run(): void
     {
-        // Limpiar datos existentes antes de insertar nuevos
         Empresa::query()->delete();
-        
+
         Empresa::create([
-            'nombre'    => 'Pollos Koquito',
-            'ubicacion' => '-17.396183118217614, -66.14853680060456',
-            'direccion' => 'Av. Blanco Galindo esquina 12 de Octubre',
-            'sucursal'  => 'Sucursal Central',
-            'horario'   => '9:00 AM - 11:00 PM',
+            'name'            => 'Koko pollo',
+            'normalized_name' => 'koko pollo',
+            'description'     => 'una sucursal de koko',
+            'google_maps_url' => '',
+            'id_categoria_food' => 'HliSwRHI71XR8VBlzXo6',
+            'image_url'       => null,
+            'logo_url'        => null,
+            'is_especial'     => true,
+            'location'        => ' Av López y C salomon',
+            'manager_id'      => 'ZI5GDNk0rLSnKPdmvWfZw08aMPx1',
+            'stars'           => 8,
+            'open_days'       => ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
+            'open_hours'      => ['opening' => '03:12', 'closing' => '20:11'],
         ]);
 
         Empresa::create([
-            'nombre'    => 'Koquito Norte',
-            'ubicacion' => '-17.396132543218904, -66.20782889724386',
-            'direccion' => 'Av. Héroes del Chaco Nº 302',
-            'sucursal'  => 'Sucursal Norte',
-            'horario'   => '8:00 AM - 10:00 PM',
-        ]);
-
-        Empresa::create([
-            'nombre'    => 'Koquito Sur',
-            'ubicacion' => '-17.41234567890123, -66.13456789012345',
-            'direccion' => 'Av. Circunvalación Sur Nº 150',
-            'sucursal'  => 'Sucursal Sur',
-            'horario'   => '10:00 AM - 11:30 PM',
+            'name'            => 'Burguer King',
+            'normalized_name' => 'burguer king',
+            'description'     => 'Una sucursal de Burguer King',
+            'google_maps_url' => 'https://maps.app.goo.gl/h7xBeN2ge5UEDxyJ6',
+            'id_categoria_food' => 'HliSwRHI71XR8VBlzXo6',
+            'image_url'       => null,
+            'logo_url'        => null,
+            'is_especial'     => true,
+            'location'        => 'AV. Lopez. C. Salamanca',
+            'manager_id'      => 'Z6049MAD8rV4GvHyuP97igTiDRG3',
+            'stars'           => 2,
+            'open_days'       => ['Lun','Mar','Mié','Jue','Vie'],
+            'open_hours'      => ['opening' => '10:00 AM', 'closing' => '8:00 PM'],
         ]);
     }
 }
