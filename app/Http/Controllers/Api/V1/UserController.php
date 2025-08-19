@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User; // Importa tu modelo User
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash; // Para el hash de la contraseña
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -16,43 +17,57 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Puedes agregar lógica para seleccionar solo ciertos campos o paginar
         return response()->json(User::all());
     }
 
     /**
      * Store a newly created user in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'usuario' => 'required|string|max:255|unique:users,usuario', // 'usuario' en lugar de 'name'
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8', // Las contraseñas deben ser de al menos 8 caracteres
-            'idempresa' => 'nullable|integer|exists:empresas,idempresa', // Asumiendo que 'empresas' es el nombre de la tabla
+        // Validaciones con mensajes personalizados
+        $validator = Validator::make($request->all(), [
+            'usuario'   => 'required|string|max:255|unique:users,usuario',
+            'email'     => 'required|string|email|max:255|unique:users,email',
+            'password'  => 'required|string|min:8',
+            'idempresa' => 'nullable|integer|exists:empresa,idempresa',
+        ], [
+            'usuario.required'  => 'El campo usuario es obligatorio.',
+            'usuario.string'    => 'El usuario debe ser un texto válido.',
+            'usuario.unique'    => 'Este nombre de usuario ya está en uso.',
+            'email.required'    => 'El campo email es obligatorio.',
+            'email.email'       => 'El email debe tener un formato válido.',
+            'email.unique'      => 'Este correo ya está registrado.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min'      => 'La contraseña debe tener al menos 8 caracteres.',
+            'idempresa.integer' => 'El id de empresa debe ser un número.',
+            'idempresa.exists'  => 'La empresa seleccionada no existe.',
         ]);
 
-        // Hashea la contraseña antes de guardar si no usas el mutador en el modelo para el 'set'
-        // Si ya tienes el mutador `password(): Attribute` en tu modelo User, puedes omitir esta línea
-        // Laravel 10+ con el mutador maneja el hashing automáticamente al asignar la 'password'.
-        $data['password'] = Hash::make($request->password);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Errores de validación en el usuario.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
 
-        $user = User::create($data);
+        $data = $validator->validated();
 
-        // Opcional: Cargar la relación 'empresa' si es relevante para la respuesta
-        // $user->load('empresa');
+        $user = new User();
+        $user->usuario   = $data['usuario'];
+        $user->email     = $data['email'];
+        $user->password  = $data['password'];
+        $user->idempresa = $data['idempresa'] ?? null;
+        $user->save();
 
-        return response()->json($user, 201); // 201 Created
+        return response()->json([
+            'message' => 'Usuario creado correctamente.',
+            'data'    => $user
+        ], 201);
     }
 
     /**
      * Display the specified user.
-     *
-     * @param  string  $idusuario // Utiliza el nombre de tu clave primaria
-     * @return \Illuminate\Http\JsonResponse
      */
     public function show(string $idusuario)
     {
@@ -62,40 +77,49 @@ class UserController extends Controller
 
     /**
      * Update the specified user in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $idusuario // Utiliza el nombre de tu clave primaria
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, string $idusuario)
     {
         $user = User::findOrFail($idusuario);
 
-        $data = $request->validate([
-            'usuario' => 'string|max:255|unique:users,usuario,' . $idusuario . ',idusuario', // Ignora el propio usuario en la validación unique
-            'email' => 'string|email|max:255|unique:users,email,' . $idusuario . ',idusuario',
-            'password' => 'nullable|string|min:8', // La contraseña es opcional al actualizar
-            'idempresa' => 'nullable|integer|exists:empresas,idempresa',
+        $validator = Validator::make($request->all(), [
+            'usuario'   => 'sometimes|string|max:255|unique:users,usuario,' . $idusuario . ',idusuario',
+            'email'     => 'sometimes|string|email|max:255|unique:users,email,' . $idusuario . ',idusuario',
+            'password'  => 'nullable|string|min:8',
+            'idempresa' => 'nullable|integer|exists:empresa,idempresa',
+        ], [
+            'usuario.string'    => 'El usuario debe ser un texto válido.',
+            'usuario.unique'    => 'Este nombre de usuario ya está en uso.',
+            'email.email'       => 'El email debe tener un formato válido.',
+            'email.unique'      => 'Este correo ya está registrado.',
+            'password.min'      => 'La contraseña debe tener al menos 8 caracteres.',
+            'idempresa.integer' => 'El id de empresa debe ser un número.',
+            'idempresa.exists'  => 'La empresa seleccionada no existe.',
         ]);
 
-        // Hashear la nueva contraseña si se proporciona
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Errores de validación en el usuario.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
 
         $user->update($data);
 
-        // Opcional: Cargar la relación 'empresa' si es relevante para la respuesta
-        // $user->load('empresa');
-
-        return response()->json($user);
+        return response()->json([
+            'message' => 'Usuario actualizado correctamente.',
+            'data'    => $user
+        ]);
     }
 
     /**
      * Remove the specified user from storage.
-     *
-     * @param  string  $idusuario // Utiliza el nombre de tu clave primaria
-     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(string $idusuario)
     {
