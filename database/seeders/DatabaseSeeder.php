@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             CategoriaSeeder::class, // primero categorías
             EmpresaSeeder::class,   // luego empresas que dependen de categorías
             ProductSeeder::class,   // luego productos
+            PedidosMSeeder::class,  // luego pedidos que dependen de productos
         ]);
     }
 }
