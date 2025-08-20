@@ -4,28 +4,35 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('pedidos_m', function (Blueprint $table) {
             $table->id('idpedidosm');
-            $table->unsignedBigInteger('idmesa')->nullable();
-            $table->unsignedBigInteger('idservicio');
+
+            // FKs reales
             $table->unsignedBigInteger('idempresa');
             $table->unsignedBigInteger('idusuario');
-            $table->unsignedBigInteger('idcliente');
-            $table->decimal('total', 10, 2);
-            $table->dateTime('dateRegistro');
-            $table->string('estado');
+
+            // Nuevos campos
+            $table->text('notas')->nullable();
+            $table->decimal('total', 10, 2)->default(0);
+            $table->string('ordernumber')->unique();
+            $table->string('status')->default('pending');
+
+            // Mantienes "estado" si aún lo usas
+            $table->string('estado')->nullable();
+
             $table->timestamps();
 
-            // Relaciones foráneas (puedes quitar las que no estés usando aún)
-            $table->foreign('idmesa')->references('idmesa')->on('mesa')->onDelete('cascade');
-            $table->foreign('idservicio')->references('id')->on('servicios')->onDelete('cascade'); // Asegúrate del nombre real de la tabla
-            $table->foreign('idempresa')->references('idempresa')->on('empresa')->onDelete('cascade');
-            $table->foreign('idusuario')->references('idusuario')->on('users')->onDelete('cascade');
-            $table->foreign('idcliente')->references('idcliente')->on('cliente')->onDelete('cascade'); // Cambia si tienes otra tabla
+            // Claves foráneas
+            $table->foreign('idempresa')
+                ->references('idempresa')->on('empresa')
+                ->onDelete('cascade');
+
+            $table->foreign('idusuario')
+                ->references('idusuario')->on('users')
+                ->onDelete('cascade');
         });
     }
 

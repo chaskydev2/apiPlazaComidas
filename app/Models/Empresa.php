@@ -43,4 +43,9 @@ class Empresa extends Model
     {
         return $this->hasMany(Product::class, 'idempresa', 'idempresa');
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'idempresa', 'idempresa');
+    }
 }

@@ -4,23 +4,30 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('pedido_producto', function (Blueprint $table) {
             $table->id('idpedido_producto');
-            $table->unsignedBigInteger('idpedido');
-            $table->unsignedBigInteger('idproducts');
+
+            // FKs
+            $table->unsignedBigInteger('idpedido');   // -> pedidos_m.idpedidosm
+            $table->unsignedBigInteger('idproducts'); // -> products.id
+
+            // Nuevos campos
             $table->integer('cantidad');
-            $table->decimal('preciototal', 10, 2);
-            $table->dateTime('datoRegistro');
-            $table->string('estado');
+            $table->decimal('precio', 10, 2); // precio unitario al momento de compra
+            $table->text('notas')->nullable();
+
             $table->timestamps();
 
-            // Relaciones foráneas (ajusta nombres si es necesario)
-            $table->foreign('idpedido')->references('idpedidosm')->on('pedidos_m')->onDelete('cascade');
-            $table->foreign('idproducts')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('idpedido')
+                ->references('idpedidosm')->on('pedidos_m')
+                ->onDelete('cascade');
+
+            $table->foreign('idproducts')
+                ->references('id')->on('products')
+                ->onDelete('cascade');
         });
     }
 
