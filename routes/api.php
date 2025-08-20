@@ -15,15 +15,30 @@ use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 
-// Agrupar todas las rutas bajo el prefijo 'v1' y proteger con auth:sanctum
-// Ruta pública para login
+use App\Http\Controllers\Api\V1\ImageController;
+
+
+use Illuminate\Auth\AuthenticationException;
+
 
 Route::prefix('v1')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
+    Route::prefix('users')->group(function () {
+        Route::post('create', [UserController::class, 'store']);
+    });
 });
 
 
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    
+    Route::prefix('images')->group(function () {
+        Route::post('upload', [ImageController::class, 'upload']);
+        Route::post('save', [ImageController::class, 'upload']);
+        Route::post('upload-multiple', [ImageController::class, 'uploadMultiple']);
+        Route::post('delete', [ImageController::class, 'delete']);
+        Route::post('show', [ImageController::class, 'show']);
+    });
+
     Route::prefix('products')->group(function () {
         Route::get('select', [ProductController::class, 'index']);
         Route::post('create', [ProductController::class, 'store']);
@@ -31,9 +46,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::put('update/{id}', [ProductController::class, 'update']);
         Route::delete('delete/{id}', [ProductController::class, 'destroy']);
     });
+    
     Route::prefix('users')->group(function () {
         Route::get('select', [UserController::class, 'index']);
-        Route::post('create', [UserController::class, 'store']);
         Route::get('show/{id}', [UserController::class, 'show']);
         Route::put('update/{id}', [UserController::class, 'update']);
         Route::delete('delete/{id}', [UserController::class, 'destroy']);
@@ -87,6 +102,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::put('update/{id}', [ClienteController::class, 'update']);
         Route::delete('delete/{id}', [ClienteController::class, 'destroy']);
     });
+
     Route::prefix('categorias')->group(function () {
         Route::get('select', [\App\Http\Controllers\Api\V1\CategoryController::class, 'index']);
         Route::post('create', [\App\Http\Controllers\Api\V1\CategoryController::class, 'store']);
@@ -95,3 +111,4 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::delete('delete/{id}', [\App\Http\Controllers\Api\V1\CategoryController::class, 'destroy']);
     });
 });
+

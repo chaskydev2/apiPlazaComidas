@@ -8,13 +8,15 @@ class Empresa extends Model
 {
     protected $table = 'empresa';
     protected $primaryKey = 'idempresa';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'name',
         'normalized_name',
         'description',
         'google_maps_url',
-        'id_categoria_food',
+        'idcategoria',
         'image_url',
         'logo_url',
         'is_especial',
@@ -31,4 +33,9 @@ class Empresa extends Model
         'open_days'   => 'array',
         'open_hours'  => 'array',
     ];
+
+    public function categoria()
+    {
+        return $this->belongsTo(\App\Models\Category::class, 'idcategoria', 'idcategoria');
+    }
 }

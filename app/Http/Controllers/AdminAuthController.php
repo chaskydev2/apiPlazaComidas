@@ -9,7 +9,7 @@ class AdminAuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('admin.login');
+    return response()->json(['message' => 'Admin login view not available in API-only mode.']);
     }
 
     public function login(Request $request)
@@ -18,7 +18,7 @@ class AdminAuthController extends Controller
         if (Auth::attempt($credentials)) {
             return redirect()->intended('/admin');
         }
-        return back()->withErrors(['email' => 'Credenciales incorrectas'])->withInput();
+    return response()->json(['error' => 'Credenciales incorrectas'], 401);
     }
 
     public function logout()
@@ -29,6 +29,6 @@ class AdminAuthController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+    return response()->json(['message' => 'Admin dashboard not available in API-only mode.']);
     }
 }

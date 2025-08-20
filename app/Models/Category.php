@@ -18,4 +18,9 @@ class Category extends Model
         'description',
         'image_url', // almacenamos en snake_case
     ];
+
+    public function empresas()
+    {
+        return $this->hasMany(Empresa::class, 'idcategoria', 'idcategoria');
+    }
 }

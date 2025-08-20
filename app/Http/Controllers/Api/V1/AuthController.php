@@ -15,6 +15,7 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+       
         // Validaciones con mensajes personalizados
         $validator = Validator::make($request->all(), [
             'usuario'  => 'required|string',
@@ -34,7 +35,8 @@ class AuthController extends Controller
         }
 
         $credentials = $validator->validated();
-
+         
+     
         // Buscar por email o por nombre de usuario
         $user = User::where('email', $credentials['usuario'])
             ->orWhere('usuario', $credentials['usuario'])
@@ -46,7 +48,8 @@ class AuthController extends Controller
             ], 404);
         }
 
-        if (!Hash::check($credentials['password'], $user->password)) {
+       // dd(Hash::check($credentials['password'], $user->password));
+        if (Hash::check($credentials['password'], $user->password)) {
             return response()->json([
                 'message' => 'Credenciales incorrectas. Intente nuevamente.'
             ], 401);

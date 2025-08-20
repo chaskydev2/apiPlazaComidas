@@ -12,6 +12,6 @@ class GuestLayout extends Component
      */
     public function render(): View
     {
-        return view('layouts.guest');
+    return response()->json(['message' => 'Guest layout not available in API-only mode.']);
     }
 }

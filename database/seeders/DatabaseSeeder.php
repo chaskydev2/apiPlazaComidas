@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,14 +12,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([EmpresaSeeder::class, ServicioSeeder::class]);
         // Desactivar restricciones de clave foránea
         \Schema::disableForeignKeyConstraints();
 
-        // Limpiar la tabla users
+        // Limpiar tabla users
         \DB::table('users')->truncate();
 
-        // Crear usuarios
+        // Crear usuarios base
         $users = [
             [
                 'usuario' => 'Test User',
@@ -30,6 +28,7 @@ class DatabaseSeeder extends Seeder
             [
                 'usuario' => 'Chatbot',
                 'email' => 'chatbot@koquito.ai',
+                'password' => bcrypt('chatbot123'),
             ]
         ];
 
@@ -40,7 +39,11 @@ class DatabaseSeeder extends Seeder
         // Reactivar restricciones de clave foránea
         \Schema::enableForeignKeyConstraints();
 
-        // Ejecutar otros seeders
-        $this->call(ProductSeeder::class);
+        // Ejecutar seeders en orden correcto
+        $this->call([
+            CategoriaSeeder::class, // primero categorías
+            EmpresaSeeder::class,   // luego empresas que dependen de categorías
+            ProductSeeder::class,   // luego productos
+        ]);
     }
 }

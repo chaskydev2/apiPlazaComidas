@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Validator;
 class EmpresaController extends Controller
 {
     /**
-     * Listado con paginación, búsqueda y orden.
+     * Listado con paginación, búsqueda, orden y filtro por idcategoria.
      * Query params:
      * - search: string
+     * - idcategoria: int (filtra por categoría)
      * - sortBy[sort]: columna (idempresa, name, normalized_name, stars, created_at, updated_at)
      * - sortBy[order]: asc|desc
      * - limit: int (por página)
@@ -20,22 +21,27 @@ class EmpresaController extends Controller
      */
     public function index(Request $request)
     {
-        // Leer parámetros al estilo de tu ejemplo
-        $search  = $request->input('search');
-        $sortCol = $request->input('sortBy.sort', 'idempresa');
-        $sortDir = strtolower($request->input('sortBy.order', 'asc')) === 'desc' ? 'desc' : 'asc';
-        $limit   = (int) $request->input('limit', 10);
-        $page    = (int) $request->input('page', 1);
+        $search      = $request->input('search');
+        $idcategoria = $request->input('idcategoria');
+        $sortCol     = $request->input('sortBy.sort', 'idempresa');
+        $sortDir     = strtolower($request->input('sortBy.order', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $limit       = (int) $request->input('limit', 10);
+        $page        = (int) $request->input('page', 1);
 
-        // Columnas permitidas para ordenar
         $sortable = ['idempresa','name','normalized_name','stars','created_at','updated_at'];
         if (! in_array($sortCol, $sortable, true)) {
             $sortCol = 'idempresa';
         }
 
-        $query = Empresa::query();
+        $query = Empresa::query()
+            ->with('categoria'); // para ver la categoría relacionada
 
-        // Búsqueda (multi-campo)
+        // Filtro por idcategoria
+        if (! empty($idcategoria)) {
+            $query->where('idcategoria', $idcategoria);
+        }
+
+        // Búsqueda multi-campo
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -49,10 +55,9 @@ class EmpresaController extends Controller
         // Orden
         $query->orderBy($sortCol, $sortDir);
 
-        // Paginación (mismo patrón que tu ejemplo)
+        // Paginación
         $result = $query->paginate($limit, ['*'], 'page', $page);
 
-        // Respuesta uniforme (data + meta)
         return response()->json([
             'data' => $result->items(),
             'meta' => [
@@ -63,19 +68,19 @@ class EmpresaController extends Controller
                 'sort_by'      => $sortCol,
                 'sort_dir'     => $sortDir,
                 'search'       => $search,
+                'idcategoria'  => $idcategoria,
             ],
         ]);
     }
 
     public function store(Request $request)
     {
-        // Validaciones (inline, sin nuevos FormRequests)
+        // NOTA: ahora usamos idcategoria (FK real), no idCategoriaFood.
         $validator = Validator::make($request->all(), [
             'name'            => 'required|string|max:255',
             'normalizedName'  => 'nullable|string|max:255',
             'description'     => 'nullable|string',
             'googleMapsUrl'   => 'nullable|string|max:255',
-            'idCategoriaFood' => 'nullable|string|max:255',
             'imageUrl'        => 'nullable|string|max:255',
             'logoUrl'         => 'nullable|string|max:255',
             'is_especial'     => 'nullable|boolean',
@@ -87,6 +92,12 @@ class EmpresaController extends Controller
             'openHours'       => 'nullable|array',
             'openHours.opening' => 'nullable|string|max:50',
             'openHours.closing' => 'nullable|string|max:50',
+
+            'idcategoria'     => 'required|integer|exists:categoria,idcategoria', // ✅ FK real
+        ], [
+            'idcategoria.required' => 'La categoría es obligatoria.',
+            'idcategoria.integer'  => 'La categoría debe ser numérica.',
+            'idcategoria.exists'   => 'La categoría seleccionada no existe.',
         ]);
 
         if ($validator->fails()) {
@@ -103,7 +114,6 @@ class EmpresaController extends Controller
             'normalized_name'   => $v['normalizedName'] ?? mb_strtolower($v['name']),
             'description'       => $v['description'] ?? null,
             'google_maps_url'   => $v['googleMapsUrl'] ?? null,
-            'id_categoria_food' => $v['idCategoriaFood'] ?? null,
             'image_url'         => $v['imageUrl'] ?? null,
             'logo_url'          => $v['logoUrl'] ?? null,
             'is_especial'       => $v['is_especial'] ?? false,
@@ -112,19 +122,20 @@ class EmpresaController extends Controller
             'stars'             => $v['stars'] ?? null,
             'open_days'         => $v['openDays'] ?? null,
             'open_hours'        => $v['openHours'] ?? null,
+            'idcategoria'       => $v['idcategoria'], // ✅ FK
         ];
 
         $empresa = Empresa::create($payload);
 
         return response()->json([
             'message' => 'Empresa creada correctamente.',
-            'data'    => $empresa,
+            'data'    => $empresa->load('categoria'),
         ], 201);
     }
 
     public function show(string $id)
     {
-        $empresa = Empresa::findOrFail($id);
+        $empresa = Empresa::with('categoria')->findOrFail($id);
         return response()->json($empresa);
     }
 
@@ -137,7 +148,6 @@ class EmpresaController extends Controller
             'normalizedName'  => 'sometimes|nullable|string|max:255',
             'description'     => 'sometimes|nullable|string',
             'googleMapsUrl'   => 'sometimes|nullable|string|max:255',
-            'idCategoriaFood' => 'sometimes|nullable|string|max:255',
             'imageUrl'        => 'sometimes|nullable|string|max:255',
             'logoUrl'         => 'sometimes|nullable|string|max:255',
             'is_especial'     => 'sometimes|boolean',
@@ -149,6 +159,11 @@ class EmpresaController extends Controller
             'openHours'       => 'sometimes|nullable|array',
             'openHours.opening' => 'nullable|string|max:50',
             'openHours.closing' => 'nullable|string|max:50',
+
+            'idcategoria'     => 'sometimes|integer|exists:categoria,idcategoria', // ✅ FK
+        ], [
+            'idcategoria.integer'  => 'La categoría debe ser numérica.',
+            'idcategoria.exists'   => 'La categoría seleccionada no existe.',
         ]);
 
         if ($validator->fails()) {
@@ -165,7 +180,6 @@ class EmpresaController extends Controller
             'normalizedName'  => 'normalized_name',
             'description'     => 'description',
             'googleMapsUrl'   => 'google_maps_url',
-            'idCategoriaFood' => 'id_categoria_food',
             'imageUrl'        => 'image_url',
             'logoUrl'         => 'logo_url',
             'is_especial'     => 'is_especial',
@@ -174,6 +188,7 @@ class EmpresaController extends Controller
             'stars'           => 'stars',
             'openDays'        => 'open_days',
             'openHours'       => 'open_hours',
+            'idcategoria'     => 'idcategoria', // ✅ FK
         ];
 
         $payload = [];
@@ -183,7 +198,6 @@ class EmpresaController extends Controller
             }
         }
 
-        // Si llega name y NO llega normalizedName, normalizamos automáticamente
         if (array_key_exists('name', $v) && !array_key_exists('normalizedName', $v)) {
             $payload['normalized_name'] = mb_strtolower($v['name']);
         }
@@ -192,7 +206,7 @@ class EmpresaController extends Controller
 
         return response()->json([
             'message' => 'Empresa actualizada correctamente.',
-            'data'    => $empresa,
+            'data'    => $empresa->load('categoria'),
         ]);
     }
 

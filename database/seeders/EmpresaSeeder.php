@@ -16,7 +16,6 @@ class EmpresaSeeder extends Seeder
             'normalized_name' => 'koko pollo',
             'description'     => 'una sucursal de koko',
             'google_maps_url' => '',
-            'id_categoria_food' => 'HliSwRHI71XR8VBlzXo6',
             'image_url'       => null,
             'logo_url'        => null,
             'is_especial'     => true,
@@ -25,6 +24,7 @@ class EmpresaSeeder extends Seeder
             'stars'           => 8,
             'open_days'       => ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
             'open_hours'      => ['opening' => '03:12', 'closing' => '20:11'],
+            'idcategoria'     => 1,
         ]);
 
         Empresa::create([
@@ -32,7 +32,6 @@ class EmpresaSeeder extends Seeder
             'normalized_name' => 'burguer king',
             'description'     => 'Una sucursal de Burguer King',
             'google_maps_url' => 'https://maps.app.goo.gl/h7xBeN2ge5UEDxyJ6',
-            'id_categoria_food' => 'HliSwRHI71XR8VBlzXo6',
             'image_url'       => null,
             'logo_url'        => null,
             'is_especial'     => true,
@@ -41,6 +40,7 @@ class EmpresaSeeder extends Seeder
             'stars'           => 2,
             'open_days'       => ['Lun','Mar','Mié','Jue','Vie'],
             'open_hours'      => ['opening' => '10:00 AM', 'closing' => '8:00 PM'],
+            'idcategoria'     => 1,
         ]);
     }
 }
