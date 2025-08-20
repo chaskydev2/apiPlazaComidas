@@ -6,24 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('description');
-            $table->decimal('price', 8, 2);
-            $table->string('image_url');
-            $table->timestamps();
+            $table->id(); // id
+            $table->string('name'); // nombre del producto
+            $table->text('description'); // descripción
+            $table->string('image_url')->nullable(); // puede ser URL o ruta local
+            $table->boolean('is_available')->default(true); // disponibilidad
+            $table->decimal('price', 10, 2); // precio
+
+            // FK a empresa.idempresa
+            $table->unsignedBigInteger('idempresa');
+            $table->foreign('idempresa')
+                  ->references('idempresa')->on('empresa')
+                  ->cascadeOnUpdate()
+                  ->cascadeOnDelete(); // si borras la empresa, se borran sus productos
+
+            $table->timestamps(); // created_at / updated_at
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('products');

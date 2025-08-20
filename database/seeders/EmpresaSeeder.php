@@ -40,7 +40,7 @@ class EmpresaSeeder extends Seeder
             'stars'           => 2,
             'open_days'       => ['Lun','Mar','Mié','Jue','Vie'],
             'open_hours'      => ['opening' => '10:00 AM', 'closing' => '8:00 PM'],
-            'idcategoria'     => 1,
+            'idcategoria'     => 2,
         ]);
     }
 }

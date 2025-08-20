@@ -38,4 +38,9 @@ class Empresa extends Model
     {
         return $this->belongsTo(\App\Models\Category::class, 'idcategoria', 'idcategoria');
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'idempresa', 'idempresa');
+    }
 }
