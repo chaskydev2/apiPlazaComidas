@@ -16,6 +16,6 @@ class EmailVerificationPromptController extends Controller
     {
         return $request->user()->hasVerifiedEmail()
                     ? redirect()->intended(route('dashboard', absolute: false))
-                    : view('auth.verify-email');
+                    : response()->json(['message' => 'Verify email view not available in API-only mode.']);
     }
 }

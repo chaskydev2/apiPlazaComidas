@@ -3,29 +3,32 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\User; // Importa tu modelo User
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash; // Para el hash de la contraseña
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of the users.
+     * List all users.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
-        return response()->json(User::all());
+        $users = User::all();
+        return response()->json(['data' => $users]);
     }
 
     /**
-     * Store a newly created user in storage.
+     * Register a new user and return a token.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
-        // Validaciones con mensajes personalizados
         $validator = Validator::make($request->all(), [
             'usuario'   => 'required|string|max:255|unique:users,usuario',
             'email'     => 'required|string|email|max:255|unique:users,email',
@@ -53,32 +56,42 @@ class UserController extends Controller
 
         $data = $validator->validated();
 
-        $user = new User();
-        $user->usuario   = $data['usuario'];
-        $user->email     = $data['email'];
-        $user->password  = $data['password'];
-        $user->idempresa = $data['idempresa'] ?? null;
-        $user->save();
+        $user = User::create([
+            'usuario'   => $data['usuario'],
+            'email'     => $data['email'],
+            'password'  => Hash::make($data['password']),
+            'idempresa' => $data['idempresa'] ?? null,
+        ]);
+
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Usuario creado correctamente.',
-            'data'    => $user
+            'data'    => $user,
+            'token'   => $token
         ], 201);
     }
 
     /**
-     * Display the specified user.
+     * Show a user by idusuario.
+     *
+     * @param string $idusuario
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(string $idusuario)
+    public function show(string $idusuario): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail($idusuario);
-        return response()->json($user);
+        return response()->json(['data' => $user]);
     }
 
     /**
-     * Update the specified user in storage.
+     * Update a user by idusuario.
+     *
+     * @param Request $request
+     * @param string $idusuario
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, string $idusuario)
+    public function update(Request $request, string $idusuario): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail($idusuario);
 
@@ -119,13 +132,18 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user from storage.
+     * Delete a user by idusuario.
+     *
+     * @param string $idusuario
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(string $idusuario)
+    public function destroy(string $idusuario): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail($idusuario);
         $user->delete();
 
-        return response()->json(['message' => 'Usuario eliminado exitosamente.']);
+        return response()->json([
+            'message' => 'Usuario eliminado exitosamente.'
+        ]);
     }
 }

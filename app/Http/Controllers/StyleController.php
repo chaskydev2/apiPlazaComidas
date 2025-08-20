@@ -9,12 +9,7 @@ class StyleController extends Controller
 {
     public function edit()
     {
-        $config = config('ui');
-        return view('style.edit', [
-            'navbar_bg' => $config['navbar_bg'] ?? '#df1518',
-            'navbar_logo' => $config['navbar_logo'] ?? 'logo.png',
-            'menu_title' => $config['menu_title'] ?? '🌟 Nuestro Menú 🌟',
-        ]);
+    return response()->json(['message' => 'Style edit not available in API-only mode.']);
     }
 
     public function update(Request $request)

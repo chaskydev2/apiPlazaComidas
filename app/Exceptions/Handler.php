@@ -33,10 +33,11 @@ class Handler extends ExceptionHandler
         // ...existing code...
     }
 
-    protected function unauthenticated($request, \Illuminate\Auth\AuthenticationException $exception)
-    {
-        return response()->json([
-            'error' => 'No autorizado. Debe enviar un token válido.'
-        ], 401);
-    }
+   protected function unauthenticated($request, \Illuminate\Auth\AuthenticationException $exception)
+   {
+       return response()->json([
+           'error' => 'No autorizado. Debe enviar un token válido.'
+       ], 401);
+   }
+
 }

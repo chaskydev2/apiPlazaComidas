@@ -16,9 +16,7 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+    return response()->json(['message' => 'Profile edit not available in API-only mode.']);
     }
 
     /**

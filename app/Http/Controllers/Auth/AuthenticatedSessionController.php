@@ -14,34 +14,30 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
-    {
-        return view('auth.login');
-    }
+    // Eliminado: solo API
 
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
-
         $request->session()->regenerate();
-
-        return redirect()->intended(route('products.manage', absolute: false));
+        return response()->json([
+            'message' => 'Inicio de sesión exitoso.'
+        ]);
     }
 
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
-        return redirect('/');
+        return response()->json([
+            'message' => 'Sesión cerrada correctamente.'
+        ]);
     }
 }

@@ -22,13 +22,20 @@ use Illuminate\Auth\AuthenticationException;
 
 Route::prefix('v1')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
+    Route::prefix('users')->group(function () {
+        Route::post('create', [UserController::class, 'store']);
+    });
 });
 
 
 Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    
     Route::prefix('images')->group(function () {
         Route::post('upload', [ImageController::class, 'upload']);
         Route::post('save', [ImageController::class, 'upload']);
+        Route::post('upload-multiple', [ImageController::class, 'uploadMultiple']);
+        Route::post('delete', [ImageController::class, 'delete']);
+        Route::post('show', [ImageController::class, 'show']);
     });
 
     Route::prefix('products')->group(function () {
@@ -41,7 +48,6 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     
     Route::prefix('users')->group(function () {
         Route::get('select', [UserController::class, 'index']);
-        Route::post('create', [UserController::class, 'store']);
         Route::get('show/{id}', [UserController::class, 'show']);
         Route::put('update/{id}', [UserController::class, 'update']);
         Route::delete('delete/{id}', [UserController::class, 'destroy']);

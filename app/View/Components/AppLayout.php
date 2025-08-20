@@ -12,6 +12,6 @@ class AppLayout extends Component
      */
     public function render(): View
     {
-        return view('layouts.app');
+    return response()->json(['message' => 'App layout not available in API-only mode.']);
     }
 }

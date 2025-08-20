@@ -15,7 +15,7 @@ class PasswordResetLinkController extends Controller
      */
     public function create(): View
     {
-        return view('auth.forgot-password');
+    return response()->json(['message' => 'Forgot password view not available in API-only mode.']);
     }
 
     /**
@@ -37,8 +37,8 @@ class PasswordResetLinkController extends Controller
         );
 
         return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
+                    ? response()->json(['message' => __($status)])
+                    : response()->json(['email' => $request->only('email')], 400)
                         ->withErrors(['email' => __($status)]);
     }
 }

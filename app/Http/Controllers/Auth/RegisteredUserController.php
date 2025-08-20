@@ -19,7 +19,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+    return response()->json(['message' => 'Register view not available in API-only mode.']);
     }
 
     /**
