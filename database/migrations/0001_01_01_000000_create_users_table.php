@@ -12,16 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id('idusuario'); // Cambiado a idusuario
+            $table->id('idusuario'); // PK
             $table->string('usuario'); // Reemplaza a name
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->unsignedBigInteger('idempresa')->nullable();
+            $table->string('role')->default('cliente'); // 👈 nuevo campo
             $table->rememberToken();
             $table->timestamps();
 
-            // Clave foránea a empresa
+            // FK
             $table->foreign('idempresa')->references('idempresa')->on('empresa')->onDelete('cascade');
         });
 

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
                 'usuario' => 'Test User',
                 'email' => 'admin@koquito.com',
                 'password' => bcrypt('password123'),
+                'role' => 'admin', 
             ],
             [
                 'usuario' => 'Chatbot',
@@ -46,5 +47,26 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,   // luego productos
             PedidosMSeeder::class,  // luego pedidos que dependen de productos
         ]);
+
+        $users1 = [
+            [
+                'usuario' => 'Test Manager',
+                'email' => 'manager@koko.com',
+                'password' => bcrypt('password123'),
+                'role' => 'manager', 
+                'idempresa' => 1,
+            ],
+            [
+                'usuario' => 'Client Test',
+                'email' => 'client@koquito.ai',
+                'password' => bcrypt('pass123'),
+                'role' => 'cliente',
+                'idempresa' => 2,
+            ]
+        ];
+
+        foreach ($users1 as $userData1) {
+            User::factory()->create($userData1);
+        }
     }
 }
