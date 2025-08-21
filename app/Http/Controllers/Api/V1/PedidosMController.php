@@ -203,18 +203,31 @@ class PedidosMController extends Controller
         $request->validate([
             'fecha_inicio' => 'nullable|date',
             'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
+            'search'       => 'nullable|string',
+            'limit'        => 'nullable|integer|min:1',
+            'page'         => 'nullable|integer|min:1',
         ]);
+
+        $limit = (int) $request->input('limit', 10);
+        $page  = (int) $request->input('page', 1);
 
         $query = \DB::table('pedidos_m as p')
             ->join('empresa as e', 'p.idempresa', '=', 'e.idempresa')
             ->select(
                 'e.idempresa',
-                'e.name as empresa', // usa tu campo real
+                'e.name as empresa', 
                 \DB::raw('COUNT(p.idpedidosm) as total_pedidos'),
                 \DB::raw('SUM(p.total) as monto_total')
             )
             ->groupBy('e.idempresa', 'e.name');
 
+        // Buscador por nombre de empresa
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('e.name', 'like', "%{$search}%");
+        }
+
+        // Filtros de fechas
         if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
             $fechaInicio = $request->fecha_inicio . ' 00:00:00';
             $fechaFin    = $request->fecha_fin . ' 23:59:59';
@@ -224,9 +237,21 @@ class PedidosMController extends Controller
             $query->whereDate('p.created_at', $request->fecha_inicio);
         }
 
-        $reporte = $query->get();
+        // Paginación
+        $reporte = $query->paginate($limit, ['*'], 'page', $page);
 
-        return response()->json($reporte);
+        return response()->json([
+            'data' => $reporte->items(),
+            'meta' => [
+                'current_page' => $reporte->currentPage(),
+                'per_page'     => $reporte->perPage(),
+                'total'        => $reporte->total(),
+                'last_page'    => $reporte->lastPage(),
+                'search'       => $request->input('search'),
+                'fecha_inicio' => $request->input('fecha_inicio'),
+                'fecha_fin'    => $request->input('fecha_fin'),
+            ],
+        ]);
     }
 
 }
