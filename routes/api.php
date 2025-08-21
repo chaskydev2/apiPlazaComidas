@@ -110,5 +110,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
         Route::put('update/{id}', [\App\Http\Controllers\Api\V1\CategoryController::class, 'update']);
         Route::delete('delete/{id}', [\App\Http\Controllers\Api\V1\CategoryController::class, 'destroy']);
     });
+
+    Route::get('pedidos/reporte-ingresos', [PedidosMController::class, 'reporteIngresos']);
 });
 

@@ -197,4 +197,36 @@ class PedidosMController extends Controller
 
         return response()->json(['message' => 'Pedido eliminado.']);
     }
+
+    public function reporteIngresos(Request $request)
+    {
+        $request->validate([
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
+        ]);
+
+        $query = \DB::table('pedidos_m as p')
+            ->join('empresa as e', 'p.idempresa', '=', 'e.idempresa')
+            ->select(
+                'e.idempresa',
+                'e.name as empresa', // usa tu campo real
+                \DB::raw('COUNT(p.idpedidosm) as total_pedidos'),
+                \DB::raw('SUM(p.total) as monto_total')
+            )
+            ->groupBy('e.idempresa', 'e.name');
+
+        if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+            $fechaInicio = $request->fecha_inicio . ' 00:00:00';
+            $fechaFin    = $request->fecha_fin . ' 23:59:59';
+
+            $query->whereBetween('p.created_at', [$fechaInicio, $fechaFin]);
+        } elseif ($request->filled('fecha_inicio')) {
+            $query->whereDate('p.created_at', $request->fecha_inicio);
+        }
+
+        $reporte = $query->get();
+
+        return response()->json($reporte);
+    }
+
 }
